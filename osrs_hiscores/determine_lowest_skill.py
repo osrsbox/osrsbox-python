@@ -1,53 +1,56 @@
-import urllib.request
-import json
-import requests
-import collections
+# !/usr/bin/python
 
-base_url = "http://services.runescape.com/m=hiscore_oldschool/index_lite.ws?player="
-player_name = input("Enter your player name:")
+"""
+Author:  PH01L
+Email:   phoil@osrsbox.com
+Website: osrsbox.com
+Date:    2018/10/10
 
-url = base_url + player_name
+Description:
+Determine a players lowest skill (good for Tears of Guthix Minigame)
 
-print(">>> %s" % url)
+Copyright (c) 2018, PH01L
 
-page = urllib.request.urlopen(url).read().decode("utf-8")
+###############################################################################
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+###############################################################################
 
-page = page.split("\n")
+>>> CHANGELOG:
+    1.0.0       Base functionality
+"""
 
-skills = ["Overall",
-          "Attack",
-          "Defence",
-          "Strength",
-          "Hitpoints",
-          "Ranged",
-          "Prayer",
-          "Magic",
-          "Cooking",
-          "Woodcutting",
-          "Fletching",
-          "Fishing",
-          "Firemaking",
-          "Crafting",
-          "Smithing",
-          "Mining",
-          "Herblore",
-          "Agility",
-          "Thieving",
-          "Slayer",
-          "Farming",
-          "Runecraft",
-          "Hunter",
-          "Construction"]
-         
-hiscores = list()         
-Skill = collections.namedtuple('Skill', 'name rank level xp')         
-         
-for i, skill in enumerate(skills):
-    line = page[i].split(",")
-    parse_skill = Skill(name=skill, rank=int(line[0]), level=int(line[1]), xp=int(line[2]))
-    hiscores.append(parse_skill)
+__version__ = "1.0.0"
 
-hiscores.sort(key=lambda x:x.xp)
-    
+import os
+import sys
+
+# Import HiscoresAPI class
+sys.path.append(os.getcwd())
+import HiscoresAPI
+
+player_name = input(">>> Enter your player name: ")
+
+# Create object for using Player Scraper Lite
+hpsl = HiscoresAPI.HiscoresPlayerScraperLite(player_name, "overall")
+
+# Determine the players hiscore (and return dict/json object)
+hiscores = hpsl.get_players_hiscore_lite()
+
+skill_list = dict()
+
 for skill in hiscores:
-    print(skill.name, skill.xp)
+    skill_list[skill] = hiscores[skill]["xp"]
+
+sorted_skills = sorted(skill_list.items(), key=lambda x: int(x[1]))
+    
+for skill in sorted_skills:
+    print(skill)
